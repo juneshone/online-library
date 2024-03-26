@@ -1,3 +1,4 @@
+import argparse
 import os
 import requests
 from pathvalidate import sanitize_filename
@@ -62,7 +63,21 @@ def parse_book_page(url):
 
 
 def main():
-    for book_id in range(1, 11):
+    parser = argparse.ArgumentParser(description='Скачивает книги')
+    parser.add_argument(
+        "start_id",
+        type=int,
+        default=1,
+        help='C какой станицы скачивать'
+    )
+    parser.add_argument(
+        "end_id",
+        type=int,
+        default=10,
+        help='По какую страницу скачивать'
+    )
+    args = parser.parse_args()
+    for book_id in range(args.start_id, args.end_id):
         book_page_url = f"https://tululu.org/b{book_id}/"
         book_file_url = f'https://tululu.org/txt.php?id={book_id}'
         file_response = requests.get(book_file_url)
@@ -74,8 +89,8 @@ def main():
             full_image_url = book_content['url']
             download_image(full_image_url)
             download_txt(book_file_url, book_filename)
-            print(book_content['title'])
-            print(book_content['genres'])
+            print('Название:', book_content['title'])
+            print('Автор:', book_content['author'])
         except requests.exceptions.HTTPError:
             print(f'Отсутствует книга с id = {book_id}')
 

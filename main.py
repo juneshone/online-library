@@ -33,36 +33,51 @@ def download_image(url, folder='images/'):
     return filepath
 
 
-def main():
-    for id in range(1, 11):
-        book_url = f"https://tululu.org/b{id}/"
-        response = requests.get(book_url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'lxml')
-        book_name = soup.find('h1').text.split('::', maxsplit=1)
-        book_title = f'{id}. {book_name[0].strip()}.txt'
+def parse_book_page(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'lxml')
 
-        book_file_url = f'https://tululu.org/txt.php?id={id}'
+    book_name = soup.find('h1').text.split('::', maxsplit=1)
+    book_title = book_name[0].strip()
+    book_author = book_name[1].strip()
+
+    image_url = soup.find(class_="bookimage").find('img')['src']
+    full_image_url = urljoin('https://tululu.org/', image_url)
+
+    comments = soup.find_all(class_="texts")
+    book_comments = [comment.find('span').text for comment in comments]
+
+    genres = soup.find('span', class_="d_book").find_all('a')
+    book_genres = [genre.text for genre in genres]
+
+    book_content = {
+        'title': book_title,
+        'author': book_author,
+        'url': full_image_url,
+        'comments': book_comments,
+        'genres': book_genres
+    }
+    return book_content
+
+
+def main():
+    for book_id in range(1, 11):
+        book_page_url = f"https://tululu.org/b{book_id}/"
+        book_file_url = f'https://tululu.org/txt.php?id={book_id}'
         file_response = requests.get(book_file_url)
         file_response.raise_for_status()
-
-        comments_texts = soup.find_all(class_="texts")
         try:
             check_for_redirect(file_response)
-            image_url = soup.find(class_="bookimage").find('img')['src']
-            full_image_url = urljoin('https://tululu.org/', image_url)
+            book_content = parse_book_page(book_page_url)
+            book_filename = f'{book_id}. {book_content["title"]}.txt'
+            full_image_url = book_content['url']
             download_image(full_image_url)
-            download_txt(book_file_url, book_title)
-
-            print(book_title)
-            books_genres = soup.find('span', class_="d_book").find_all('a')
-            print([genre.text for genre in books_genres])
-
-            for comment in comments_texts:
-                book_comment = comment.find('span').text
-                print(book_comment)
+            download_txt(book_file_url, book_filename)
+            print(book_content['title'])
+            print(book_content['genres'])
         except requests.exceptions.HTTPError:
-            print(f'Отсутствует книга с id = {id}')
+            print(f'Отсутствует книга с id = {book_id}')
 
 
 if __name__ == '__main__':

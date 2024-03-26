@@ -25,7 +25,6 @@ def download_txt(url, filename, folder='books/'):
 def download_image(url, folder='images/'):
     response = requests.get(url)
     response.raise_for_status()
-    check_for_redirect(response)
     url_parts = unquote(urlparse(url).path)
     image_name = url_parts.split('/')[-1]
     filepath = os.path.join(folder, image_name)
@@ -46,12 +45,20 @@ def main():
         book_file_url = f'https://tululu.org/txt.php?id={id}'
         file_response = requests.get(book_file_url)
         file_response.raise_for_status()
+
+        comments_texts = soup.find_all(class_="texts")
         try:
             check_for_redirect(file_response)
             image_url = soup.find(class_="bookimage").find('img')['src']
             full_image_url = urljoin('https://tululu.org/', image_url)
             download_image(full_image_url)
             download_txt(book_file_url, book_title)
+
+            print(book_title)
+
+            for comment in comments_texts:
+                book_comment = comment.find('span').text
+                print(book_comment)
         except requests.exceptions.HTTPError:
             print(f'Отсутствует книга с id = {id}')
 

@@ -3,6 +3,7 @@ import requests
 from pathvalidate import sanitize_filename
 from pathlib import Path
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse, unquote
 
 
 def check_for_redirect(response):
@@ -14,14 +15,26 @@ def download_txt(url, filename, folder='books/'):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
-    book_file = sanitize_filename(filename)
-    filepath = os.path.join(folder, book_file)
+    book_name = sanitize_filename(filename)
+    filepath = os.path.join(folder, book_name)
+    with open(filepath, 'wb') as file:
+       file.write(response.content)
+    return filepath
+
+
+def download_image(url, folder='images/'):
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+    url_parts = unquote(urlparse(url).path)
+    image_name = url_parts.split('/')[-1]
+    filepath = os.path.join(folder, image_name)
     with open(filepath, 'wb') as file:
         file.write(response.content)
     return filepath
 
 
-def get_books():
+def main():
     for id in range(1, 11):
         book_url = f"https://tululu.org/b{id}/"
         response = requests.get(book_url)
@@ -29,13 +42,21 @@ def get_books():
         soup = BeautifulSoup(response.text, 'lxml')
         book_name = soup.find('h1').text.split('::', maxsplit=1)
         book_title = f'{id}. {book_name[0].strip()}.txt'
+
+        book_file_url = f'https://tululu.org/txt.php?id={id}'
+        file_response = requests.get(book_file_url)
+        file_response.raise_for_status()
         try:
-            file_url = f'https://tululu.org/txt.php?id={id}'
-            download_txt(file_url, book_title)
+            check_for_redirect(file_response)
+            image_url = soup.find(class_="bookimage").find('img')['src']
+            full_image_url = urljoin('https://tululu.org/', image_url)
+            download_image(full_image_url)
+            download_txt(book_file_url, book_title)
         except requests.exceptions.HTTPError:
             print(f'Отсутствует книга с id = {id}')
 
 
 if __name__ == '__main__':
     Path("books/").mkdir(parents=True, exist_ok=True)
-    get_books()
+    Path("images/").mkdir(parents=True, exist_ok=True)
+    main()

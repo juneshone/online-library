@@ -55,6 +55,8 @@ def main():
             download_txt(book_file_url, book_title)
 
             print(book_title)
+            books_genres = soup.find('span', class_="d_book").find_all('a')
+            print([genre.text for genre in books_genres])
 
             for comment in comments_texts:
                 book_comment = comment.find('span').text

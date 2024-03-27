@@ -81,8 +81,9 @@ def main():
     args = parser.parse_args()
     for book_id in range(args.start_id, args.end_id):
         book_page_url = f"https://tululu.org/b{book_id}/"
-        book_file_url = f'https://tululu.org/txt.php?id={book_id}'
-        file_response = requests.get(book_file_url)
+        url = f'https://tululu.org/txt.php'
+        payload = {'id': book_id}
+        file_response = requests.get(url, params=payload)
         file_response.raise_for_status()
         try:
             check_for_redirect(file_response)
@@ -90,6 +91,7 @@ def main():
             book_filename = f'{book_id}. {book_content["title"]}.txt'
             full_image_url = book_content['url']
             download_image(full_image_url)
+            book_file_url = book_content['url']
             download_txt(book_file_url, book_filename)
             print('Название:', book_content['title'])
             print('Автор:', book_content['author'])

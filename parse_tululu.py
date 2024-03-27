@@ -83,10 +83,10 @@ def main():
         book_page_url = f"https://tululu.org/b{book_id}/"
         url = f'https://tululu.org/txt.php'
         payload = {'id': book_id}
-        file_response = requests.get(url, params=payload)
-        file_response.raise_for_status()
+        response = requests.get(url, params=payload)
+        response.raise_for_status()
         try:
-            check_for_redirect(file_response)
+            check_for_redirect(response)
             book_content = parse_book_page(book_page_url)
             book_filename = f'{book_id}. {book_content["title"]}.txt'
             full_image_url = book_content['url']

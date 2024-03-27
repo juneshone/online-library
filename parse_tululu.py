@@ -19,7 +19,7 @@ def download_txt(url, filename, folder='books/'):
     book_name = sanitize_filename(filename)
     filepath = os.path.join(folder, book_name)
     with open(filepath, 'wb') as file:
-       file.write(response.content)
+        file.write(response.content)
     return filepath
 
 
@@ -63,6 +63,8 @@ def parse_book_page(url):
 
 
 def main():
+    Path("books/").mkdir(parents=True, exist_ok=True)
+    Path("images/").mkdir(parents=True, exist_ok=True)
     parser = argparse.ArgumentParser(description='Скачивает книги')
     parser.add_argument(
         "start_id",
@@ -96,6 +98,4 @@ def main():
 
 
 if __name__ == '__main__':
-    Path("books/").mkdir(parents=True, exist_ok=True)
-    Path("images/").mkdir(parents=True, exist_ok=True)
     main()

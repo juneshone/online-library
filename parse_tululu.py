@@ -1,5 +1,7 @@
 import argparse
 import os
+import time
+import sys
 import requests
 from pathvalidate import sanitize_filename
 from pathlib import Path
@@ -95,8 +97,12 @@ def main():
             download_txt(book_file_url, book_filename)
             print('Название:', book_content['title'])
             print('Автор:', book_content['author'])
-        except requests.exceptions.HTTPError:
-            print(f'Отсутствует книга с id = {book_id}')
+        except requests.exceptions.HTTPError as e:
+            sys.stderr.write(f'Ошибка HTTP {e} \n'
+                             f'Отсутствует книга с id = {book_id}\n')
+        except requests.exceptions.ConnectionError as e:
+            sys.stderr.write(f'Ошибка соединения {e}\n')
+            time.sleep(30)
 
 
 if __name__ == '__main__':

@@ -84,10 +84,10 @@ def main():
     for book_id in range(args.start_id, args.end_id):
         book_page_url = f"https://tululu.org/b{book_id}/"
         url = f'https://tululu.org/txt.php'
-        payload = {'id': book_id}
-        response = requests.get(url, params=payload)
-        response.raise_for_status()
         try:
+            payload = {'id': book_id}
+            response = requests.get(url, params=payload)
+            response.raise_for_status()
             check_for_redirect(response)
             book_content = parse_book_page(book_page_url)
             book_filename = f'{book_id}. {book_content["title"]}.txt'
@@ -98,11 +98,11 @@ def main():
             print('Название:', book_content['title'])
             print('Автор:', book_content['author'])
         except requests.exceptions.HTTPError as e:
-            sys.stderr.write(f'Ошибка HTTP {e} \n'
+            sys.stderr.write(f'Ошибка HTTP: {e}\n'
                              f'Отсутствует книга с id = {book_id}\n')
         except requests.exceptions.ConnectionError as e:
-            sys.stderr.write(f'Ошибка соединения {e}\n')
-            time.sleep(30)
+            sys.stderr.write(f'Ошибка соединения {url}: {e}\n')
+            time.sleep(10)
 
 
 if __name__ == '__main__':

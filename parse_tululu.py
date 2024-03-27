@@ -44,10 +44,10 @@ def parse_book_page(url, content):
     book_author = book_name[1].strip()
 
     book_url = soup.select('table.d_book a')[-3]['href']
-    full_book_url = urljoin('https://tululu.org/', book_url)
+    full_book_url = urljoin(url, book_url)
 
     image_url = soup.find(class_="bookimage").find('img')['src']
-    full_image_url = urljoin('https://tululu.org/', image_url)
+    full_image_url = urljoin(url, image_url)
 
     comments = soup.find_all(class_="texts")
     book_comments = [comment.find('span').text for comment in comments]

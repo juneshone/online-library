@@ -1,3 +1,4 @@
+import json
 import requests
 import time
 import sys
@@ -8,16 +9,17 @@ from parse_tululu import (parse_book_page, download_txt,
 
 
 def download_fantastic_books():
+    books_content = []
     for page in range(1, 5):
         url = f'https://tululu.org/l55/{page}'
         try:
             response = requests.get(url)
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'lxml')
-            books = soup.find_all('table', class_="d_book")
+            books = soup.select('#content .d_book')
             for book in books:
                 try:
-                    book_page_url = urljoin(url, book.find('a')['href'])
+                    book_page_url = urljoin(url, book.select_one('a')['href'])
                     response = requests.get(book_page_url)
                     response.raise_for_status()
                     check_for_redirect(response)
@@ -32,20 +34,19 @@ def download_fantastic_books():
                     book_filename = f'{book_id}. {book_content["title"]}.txt'
                     if book_file_url:
                         download_txt(book_file_url, book_filename)
-
+                    books_content.append(book_content)
                 except requests.exceptions.HTTPError as e:
                     sys.stderr.write(f'Ошибка HTTP: {e}\n')
                 except requests.exceptions.ConnectionError as e:
                     sys.stderr.write(f'Ошибка соединения: {e}\n')
                     time.sleep(10)
         except requests.exceptions.HTTPError as e:
-            sys.stderr.write(f'Ошибка HTTP: {e}')
+            sys.stderr.write(f'Ошибка HTTP: {e}\n')
         except requests.exceptions.ConnectionError as e:
-            sys.stderr.write(f'Ошибка соединения {url}: {e}\n')
+            sys.stderr.write(f'Ошибка соединения: {e}\n')
             time.sleep(10)
-
-    '''book = [books.find_all('a')['href'] for book in books]
-    soup.find_all('a', class_='npage')[-1]['href']'''
+    with open('books.json', 'w') as books_file:
+        json.dump(books_content, books_file, ensure_ascii=False)
 
 
 if __name__ == '__main__':

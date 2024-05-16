@@ -1,3 +1,4 @@
+import argparse
 import json
 import requests
 import time
@@ -8,9 +9,9 @@ from parse_tululu import (parse_book_page, download_txt,
                           download_image, check_for_redirect)
 
 
-def download_fantastic_books():
+def download_fantastic_books(start_page, end_page):
     books_content = []
-    for page in range(1, 5):
+    for page in range(start_page, end_page):
         url = f'https://tululu.org/l55/{page}'
         try:
             response = requests.get(url)
@@ -49,5 +50,25 @@ def download_fantastic_books():
         json.dump(books_content, books_file, ensure_ascii=False)
 
 
+def main():
+    parser = argparse.ArgumentParser(
+        description='Парсинг книг с сайта tululu.org'
+    )
+    parser.add_argument(
+        "--start_page",
+        type=int,
+        default=1,
+        help='Номер первой страницы для скачивани книг'
+    )
+    parser.add_argument(
+        "--end_page",
+        type=int,
+        default=702,
+        help='Номер последней страницы для скачивани книг'
+    )
+    args = parser.parse_args()
+    download_fantastic_books(args.start_page, args.end_page)
+
+
 if __name__ == '__main__':
-    download_fantastic_books()
+    main()

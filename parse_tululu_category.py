@@ -28,8 +28,8 @@ def download_fantastic_books(url, dest_folder, skip_imgs, skip_txt):
             if full_image_url and not skip_imgs:
                 download_image(
                     full_image_url,
-                    folder=Path(dest_folder) / 'images/')
-
+                    folder=Path(dest_folder) / 'images/'
+                )
             book_file_url = book_content['book_url']
             book_id = unquote(urlparse(book_file_url).query).split('=')[-1]
             book_filename = f'{book_id}. {book_content["title"]}.txt'
@@ -37,8 +37,8 @@ def download_fantastic_books(url, dest_folder, skip_imgs, skip_txt):
                 download_txt(
                     book_file_url,
                     book_filename,
-                    folder=Path(dest_folder) / 'books/')
-
+                    folder=Path(dest_folder) / 'books/'
+                )
             books_content.append(book_content)
         except requests.exceptions.HTTPError as e:
             sys.stderr.write(f'Ошибка HTTP: {e}\n')
@@ -84,10 +84,12 @@ def main():
     args = parser.parse_args()
     Path(args.dest_folder).joinpath('books/').mkdir(
         parents=True,
-        exist_ok=True)
+        exist_ok=True
+    )
     Path(args.dest_folder).joinpath('images/').mkdir(
         parents=True,
-        exist_ok=True)
+        exist_ok=True
+    )
     for page in range(args.start_page, args.end_page):
         page_url = f'https://tululu.org/l55/{page}'
         try:
@@ -95,7 +97,8 @@ def main():
                 page_url,
                 args.dest_folder,
                 args.skip_imgs,
-                args.skip_txt)
+                args.skip_txt
+            )
         except requests.exceptions.HTTPError as e:
             sys.stderr.write(f'Ошибка HTTP: {e}\n')
         except requests.exceptions.ConnectionError as e:

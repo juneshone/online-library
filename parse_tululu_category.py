@@ -10,42 +10,51 @@ from parse_tululu import (parse_book_page, download_txt,
                           download_image, check_for_redirect)
 
 
-def download_fantastic_books(url, dest_folder, skip_imgs, skip_txt):
+def download_fantastic_books(start_page, end_page, dest_folder, skip_imgs, skip_txt):
     books_content = []
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-    soup = BeautifulSoup(response.text, 'lxml')
-    books = soup.select('#content .d_book')
-    for book in books:
-        book_page_url = urljoin(url, book.select_one('a')['href'])
+    for page in range(start_page, end_page):
+        page_url = f'https://tululu.org/l55/{page}'
         try:
-            response = requests.get(book_page_url)
+            books_content = []
+            response = requests.get(page_url)
             response.raise_for_status()
             check_for_redirect(response)
-            book_content = parse_book_page(book_page_url, response.content)
+            soup = BeautifulSoup(response.text, 'lxml')
+            books = soup.select('#content .d_book')
+            for book in books:
+                book_page_url = urljoin(page_url, book.select_one('a')['href'])
+                try:
+                    response = requests.get(book_page_url)
+                    response.raise_for_status()
+                    check_for_redirect(response)
+                    book_content = parse_book_page(book_page_url, response.content)
 
-            full_image_url = book_content['image_url']
-            if full_image_url and not skip_imgs:
-                download_image(
-                    full_image_url,
-                    folder=Path(dest_folder) / 'images/'
-                )
-            book_file_url = book_content['book_url']
-            book_id = unquote(urlparse(book_file_url).query).split('=')[-1]
-            book_filename = f'{book_id}. {book_content["title"]}.txt'
-            if book_file_url and not skip_txt:
-                download_txt(
-                    book_file_url,
-                    book_filename,
-                    folder=Path(dest_folder) / 'books/'
-                )
-            books_content.append(book_content)
+                    full_image_url = book_content['image_url']
+                    if full_image_url and not skip_imgs:
+                        download_image(
+                            full_image_url,
+                            folder=Path(dest_folder) / 'images/'
+                        )
+                    book_file_url = book_content['book_url']
+                    book_id = unquote(urlparse(book_file_url).query).split('=')[-1]
+                    book_filename = f'{book_id}. {book_content["title"]}.txt'
+                    if book_file_url and not skip_txt:
+                        download_txt(
+                            book_file_url,
+                            book_filename,
+                            folder=Path(dest_folder) / 'books/'
+                        )
+                    books_content.append(book_content)
+                except requests.exceptions.HTTPError as e:
+                    sys.stderr.write(f'Ошибка HTTP: {e}\n')
+                except requests.exceptions.ConnectionError as e:
+                    sys.stderr.write(f'Ошибка соединения: {e}\n')
+                    time.sleep(10)
         except requests.exceptions.HTTPError as e:
             sys.stderr.write(f'Ошибка HTTP: {e}\n')
         except requests.exceptions.ConnectionError as e:
             sys.stderr.write(f'Ошибка соединения: {e}\n')
-            time.sleep(10)
+        time.sleep(10)
     with open((Path(dest_folder) / 'books.json'), 'w') as books_file:
         json.dump(books_content, books_file, ensure_ascii=False)
 
@@ -91,20 +100,15 @@ def main():
         parents=True,
         exist_ok=True
     )
-    for page in range(args.start_page, args.end_page):
-        page_url = f'https://tululu.org/l55/{page}'
-        try:
-            download_fantastic_books(
-                page_url,
-                args.dest_folder,
-                args.skip_imgs,
-                args.skip_txt
-            )
-        except requests.exceptions.HTTPError as e:
-            sys.stderr.write(f'Ошибка HTTP: {e}\n')
-        except requests.exceptions.ConnectionError as e:
-            sys.stderr.write(f'Ошибка соединения: {e}\n')
-        time.sleep(10)
+
+    download_fantastic_books(
+        args.start_page,
+        args.end_page,
+        args.dest_folder,
+        args.skip_imgs,
+        args.skip_txt
+    )
+
 
 
 if __name__ == '__main__':

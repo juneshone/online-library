@@ -14,6 +14,7 @@ def download_fantastic_books(url, dest_folder, skip_imgs, skip_txt):
     books_content = []
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(response)
     soup = BeautifulSoup(response.text, 'lxml')
     books = soup.select('#content .d_book')
     for book in books:

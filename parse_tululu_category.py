@@ -15,7 +15,6 @@ def download_fantastic_books(start_page, end_page, dest_folder, skip_imgs, skip_
     for page in range(start_page, end_page):
         page_url = f'https://tululu.org/l55/{page}'
         try:
-            books_content = []
             response = requests.get(page_url)
             response.raise_for_status()
             check_for_redirect(response)

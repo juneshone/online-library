@@ -60,6 +60,7 @@ def parse_book_page(url, content):
         'title': book_title,
         'author': book_author,
         'image_url': full_image_url,
+        'image_name': full_image_url.split('/')[-1],
         'comments': book_comments,
         'genres': book_genres,
         'book_url': full_book_url

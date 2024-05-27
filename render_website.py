@@ -20,6 +20,7 @@ def on_reload():
     rendered_page = template.render(
         book_columns=book_columns,
         images="images/",
+        books="books/",
     )
 
 

@@ -36,7 +36,7 @@ def download_fantastic_books(start_page, end_page, dest_folder, skip_imgs, skip_
                         )
                     book_file_url = book_content['book_url']
                     book_id = unquote(urlparse(book_file_url).query).split('=')[-1]
-                    book_filename = f'{book_id}. {book_content["title"]}.txt'
+                    book_filename = f'{book_content["title"]}.txt'
                     if book_file_url and not skip_txt:
                         download_txt(
                             book_file_url,

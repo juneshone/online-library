@@ -26,6 +26,8 @@ def on_reload():
             book_columns=book_columns,
             images=Path('../') / 'images/',
             books=Path('../') / 'books/',
+            page=page,
+            pages=len(book_pages),
         )
 
         with open((Path('pages/') / f'index{page}.html'), 'w', encoding='utf8') as file:

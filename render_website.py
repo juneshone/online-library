@@ -7,17 +7,7 @@ from more_itertools import chunked
 from pathlib import Path
 
 
-def on_reload():
-    env = Environment(
-        loader=FileSystemLoader('.'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-
-    template = env.get_template('template.html')
-
-    with open('books.json', 'r') as books_file:
-        books = json.load(books_file)
-
+def on_reload(books, template):
     book_pages = list(chunked(books, 10))
 
     for page, books in enumerate(book_pages, 1):
@@ -30,13 +20,24 @@ def on_reload():
             pages=len(book_pages),
         )
 
-        with open((Path('pages/') / f'index{page}.html'), 'w', encoding='utf8') as file:
-            file.write(rendered_page)
+        with open((Path('pages/') / f'index{page}.html'), 'w', encoding='utf8') as index:
+            index.write(rendered_page)
 
 
 def main():
     os.makedirs('pages/', mode=0o666, exist_ok=True)
-    on_reload()
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+
+    template = env.get_template('template.html')
+
+    with open('books.json', 'r') as books_json:
+        books = json.load(books_json)
+
+    on_reload(books, template)
+
     server = Server()
     server.watch('template.html', on_reload)
     server.serve(root='.')

@@ -54,7 +54,7 @@ def download_fantastic_books(start_page, end_page, dest_folder, skip_imgs, skip_
         except requests.exceptions.ConnectionError as e:
             sys.stderr.write(f'Ошибка соединения: {e}\n')
         time.sleep(10)
-    with open((Path(dest_folder) / 'books.json'), 'w') as books_file:
+    with open((Path(dest_folder) / 'books.json'), 'w', encoding='utf-8') as books_file:
         json.dump(books_content, books_file, ensure_ascii=False)
 
 

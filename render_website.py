@@ -34,7 +34,7 @@ def main():
     template = env.get_template('template.html')
 
     with open('books.json', 'r', encoding='utf-8') as books_json:
-        books = json.load(books_json)
+        books = json.loads(books_json.read())
 
     on_reload(books, template)
 

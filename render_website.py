@@ -12,13 +12,12 @@ def on_reload(books, template):
     pages_count = 10
     book_pages = list(chunked(books, pages_count))
 
-    for page, books in enumerate(book_pages, 1):
+    start_page_number = 1
+    for page, books in enumerate(book_pages, start_page_number):
         columns = 2
         book_columns = list(chunked(books, columns))
         rendered_page = template.render(
             book_columns=book_columns,
-            images=Path('../media/') / 'images/',
-            books=Path('../media/') / 'books/',
             page=page,
             pages=len(book_pages),
         )

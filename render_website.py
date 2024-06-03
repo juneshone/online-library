@@ -8,10 +8,12 @@ from pathlib import Path
 
 
 def on_reload(books, template):
-    book_pages = list(chunked(books, 10))
+    pages_count = 10
+    book_pages = list(chunked(books, pages_count))
 
     for page, books in enumerate(book_pages, 1):
-        book_columns = list(chunked(books, 2))
+        columns = 2
+        book_columns = list(chunked(books, columns))
         rendered_page = template.render(
             book_columns=book_columns,
             images=Path('../media/') / 'images/',

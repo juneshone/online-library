@@ -14,8 +14,8 @@ def on_reload(books, template):
         book_columns = list(chunked(books, 2))
         rendered_page = template.render(
             book_columns=book_columns,
-            images=Path('../') / 'images/',
-            books=Path('../') / 'books/',
+            images=Path('../media/') / 'images/',
+            books=Path('../media/') / 'books/',
             page=page,
             pages=len(book_pages),
         )

@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 
@@ -28,12 +29,27 @@ def on_reload(books, template):
 
 def main():
     os.makedirs('pages/', mode=0o666, exist_ok=True)
+
+    parser = argparse.ArgumentParser(
+        description='Зазружает медиа в веб-интерфейс'
+    )
+    parser.add_argument(
+        '--template_path',
+        default='templates',
+        help='Путь к шаблону HTML'
+    )
+    parser.add_argument(
+        '--template',
+        default='template.html',
+        help='Наименование шаблона HTML'
+    )
+    args = parser.parse_args()
     env = Environment(
-        loader=FileSystemLoader('.'),
+        loader=FileSystemLoader(args.template_path),
         autoescape=select_autoescape(['html', 'xml'])
     )
 
-    template = env.get_template('template.html')
+    template = env.get_template(args.template)
 
     with open('books.json', 'r', encoding='utf-8') as books_json:
         books = json.loads(books_json.read())

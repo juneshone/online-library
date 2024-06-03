@@ -65,10 +65,30 @@ python .\parse_tululu_category.py --start_page 700 --dest_folder C:\Users\user\D
 
 ## Загрузка книг в веб-интефейс
 
-Для загрузки скачанных книг в веб-интерфейсе введите команду:
+Перед загрузкой книг в веб-интерфейсе ознакомьтесь со справкой по запуску кода, используя команду:
 
 ```python
-python .\render_website.py
+python .\render_website.py -h
+```
+
+_Пример вывода:_
+
+```
+usage: render_website.py [-h] [--template_path TEMPLATE_PATH] [--template TEMPLATE]
+
+Зазружает медиа в веб-интерфейс
+
+options:
+  -h, --help            show this help message and exit
+  --template_path TEMPLATE_PATH
+                        Путь к шаблону HTML
+  --template TEMPLATE   Наименование шаблона HTML
+```
+
+Для загрузки книг в веб-интерфейс укажите позиционные аргументы (по умолчанию папка `templates` и шаблон `template.html`):
+
+```python
+python .\render_website.py --template_path 'templates' --template 'template.html'
 ```
 
 Результаты смотреть по [адресу](http://127.0.0.1:5500/pages/index1.html).

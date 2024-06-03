@@ -91,7 +91,7 @@ options:
 python .\render_website.py --template_path 'templates' --template 'template.html'
 ```
 
-Результаты смотреть по [адресу](http://127.0.0.1:5500/pages/index1.html).
+Страницы с книгами сохраняются в директорию `.\pages` и открываются с помощью браузера. Сайт доступен по [адресу](http://127.0.0.1:5500/pages/index1.html).
 Пример опубликованного сайта находится [здесь](https://juneshone.github.io/online-library/pages/index5.html).
 
 ![library](https://github.com/juneshone/online-library/blob/master/static/library.png)

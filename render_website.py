@@ -8,7 +8,12 @@ from more_itertools import chunked
 from pathlib import Path
 
 
-def on_reload(books, template):
+def on_reload(books, template_path, template_name):
+    env = Environment(
+        loader=FileSystemLoader(template_path),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+    template = env.get_template(template_name)
     pages_count = 10
     book_pages = list(chunked(books, pages_count))
 
@@ -43,20 +48,17 @@ def main():
         help='Наименование шаблона HTML'
     )
     args = parser.parse_args()
-    env = Environment(
-        loader=FileSystemLoader(args.template_path),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-
-    template = env.get_template(args.template)
 
     with open('books.json', 'r', encoding='utf-8') as books_json:
         books = json.loads(books_json.read())
 
-    on_reload(books, template)
+    on_reload(books, args.template_path, args.template)
 
     server = Server()
-    server.watch('template.html', main)
+    server.watch(
+        os.path.join(args.template_path, args.template),
+        lambda: on_reload(books, args.template_path, args.template)
+    )
     server.serve(root='.')
 
 
